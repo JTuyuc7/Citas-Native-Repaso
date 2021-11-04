@@ -1,18 +1,68 @@
-import React from 'react';
-import { StyleSheet, View, Text, SafeAreaView, ScrollView, } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, View, Text, SafeAreaView, FlatList, TouchableHighlight, Dimensions } from 'react-native';
+import Form from './components/Form';
+import List from './components/List';
 
+const { height, width } = Dimensions.get('window')
 
 const App = () => {
+
+  // Hide and show the button to add a new appoitment
+  const [ isActive, setIsActive ] = useState(false);
+
+  // State of appointments
+  const [ citas, setCitas ] = useState([]);
+
+  // Function to delete a cita
+  const delteItem = (id) => {
+
+    setCitas( (citasActuales) => {
+      return citasActuales.filter( cita => cita.id !== id )
+    })
+
+  }
+
   return (  
     <>
       <SafeAreaView style={ styles.container }>
-        <View style={ styles.Scontainer }>
-          <Text style={styles.text}>Proyectos Citas</Text>
-        </View>
+          <View style={ styles.Scontainer }>
+            <Text style={styles.text}>Administrador de Citas</Text>
+
+            <View style={{ display: 'flex', justifyContent: 'center', flexDirection: 'row', paddingVertical: 20}}>
+                <TouchableHighlight
+                  onPress={ () => {console.log('Pressing'), setIsActive(!isActive)}}
+                  style={{ backgroundColor: 'purple', borderWidth: 1, width: width * 0.5 , borderColor: 'black', borderRadius: 10, height: 40, flexDirection: 'column', justifyContent: 'center'}}>
+                  <Text style={styles.text}>{ isActive ? 'Cancelar' : 'Agrega una Cita'}</Text>
+                </TouchableHighlight>
+            </View>        
+          </View>
+        
+          <View>
+            
+              { isActive ? (
+                  <Form 
+                    citas={citas}
+                    setCitas={setCitas}
+                    setIsActive={setIsActive}
+                  />
+              ): (
+                <View style={ {paddingBottom: height * 0.2}}>
+
+                  <Text style={ [styles.textNoCita, { marginTop: citas.length > 0 ? 0 : 10}] }>{citas.length <= 0 ? 'Aun no hay citas' : null}</Text>
+                  <FlatList
+                    data={citas}
+                    renderItem={ ({item}) => <List cita={item} delteItem={delteItem}  /> }
+                    keyExtractor={cita => cita.id}
+                  />
+                </View>
+              )}
+            
+            </View>
       </SafeAreaView>
     </>
   );
 }
+
 
 // crear variables para los estilos
 const styles = StyleSheet.create({
@@ -22,15 +72,51 @@ const styles = StyleSheet.create({
   },
   Scontainer:{
     paddingTop: 55,
-    //backgroundColor: 'yellow',
-    flex: 1
   },
   text:{
     textAlign: 'center',
     color: 'white',
     fontSize: 20
+  },
+  infoContainer: {
+    flex: 1,
+    paddingVertical: 20
+  },
+  textNoCita: {
+    fontSize: 20,
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center'
   }
 
 })
 
 export default App;
+
+
+/*
+  <View>
+              { isActive ? (
+                <Form />
+              ): (
+                <View>
+                  { citas.map( (cita) => {
+                    return (
+                      <List  
+                        cita={ cita }
+                        key={ cita.id }
+                      />
+                    )
+                  })}
+                </View>
+              )}
+            </View>
+
+
+            
+    { id: 1, paciente: 'Tony 0', propietario: 'User 1', sintomas: 'Le duele la panza' },
+    { id: 2, paciente: 'Tony 1', propietario: 'User 2', sintomas: 'Le duele la panza' },
+    { id: 3, paciente: 'Tony 2', propietario: 'User 3', sintomas: 'Le duele la panza' },
+    { id: 4, paciente: 'Tony 3', propietario: 'User 4', sintomas: 'Le duele la panza' },
+    { id: 5, paciente: 'Tony 4', propietario: 'User 5', sintomas: 'Le duele la panza' }
+*/
