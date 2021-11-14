@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, SafeAreaView, FlatList, TouchableHighlight, Dimensions } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Form from './components/Form';
 import List from './components/List';
 
@@ -13,13 +14,39 @@ const App = () => {
   // State of appointments
   const [ citas, setCitas ] = useState([]);
 
+  console.log(citas)
+
   // Function to delete a cita
   const delteItem = (id) => {
 
-    setCitas( (citasActuales) => {
-      return citasActuales.filter( cita => cita.id !== id )
-    })
+    const listaFiltrada = citas.filter( (cita) => cita.id !== id )
 
+    setCitas( listaFiltrada )
+    almacenaCitas(JSON.stringify(listaFiltrada))
+  }
+
+  const almacenaCitas = async ( objCitas ) => {
+    try {
+      await AsyncStorage.setItem('@citas', objCitas )
+    } catch (error) {
+      console.log(error, 'Unable to save items')
+    }
+  }
+
+  // Cargar las citas de storage
+  useEffect(() => {
+    obtenerDatos();
+  }, []);
+
+  const obtenerDatos = async () => {
+    try {
+      const data = await AsyncStorage.getItem('@citas');
+      if( data ){
+        setCitas( JSON.parse(data) )
+      }
+    } catch (error) {
+      console.log(error, 'Unable to get data from local storage')
+    }
   }
 
   return (  
@@ -44,6 +71,7 @@ const App = () => {
                     citas={citas}
                     setCitas={setCitas}
                     setIsActive={setIsActive}
+                    almacenaCitas={almacenaCitas}
                   />
               ): (
                 <View style={ {paddingBottom: height * 0.2}}>
