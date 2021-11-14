@@ -5,7 +5,7 @@ import shortid from 'shortid';
 
 const { height, width } = Dimensions.get('window')
 
-const Form = ({citas, setCitas, setIsActive}) => {
+const Form = ({citas, setCitas, setIsActive, almacenaCitas}) => {
 
     // State para la fecha y hora
     const [ fecha, setFecha ] = useState('');
@@ -69,11 +69,12 @@ const Form = ({citas, setCitas, setIsActive}) => {
 
         newCita.id = Math.random();
 
-        console.log(newCita, 'Nueva cita')
-
         // Agregar la nueva cita
         const nuevaCita = [...citas, newCita ];
         setCitas(nuevaCita)
+
+        // Agregar a local storage
+        almacenaCitas( JSON.stringify(nuevaCita) )
 
         // Reset the Form
         setIsActive(false)
